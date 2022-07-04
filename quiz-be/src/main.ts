@@ -1,6 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import QuizEntity, { Question } from './quiz/entity/quiz.entity';
+import QuizEntity, { Question } from './quiz/quiz.entity';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);

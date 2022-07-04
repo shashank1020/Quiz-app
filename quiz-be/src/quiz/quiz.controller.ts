@@ -1,26 +1,38 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import {Body, Controller, Delete, Get, Patch, Post, UseGuards} from '@nestjs/common';
 import { QuizService } from './quiz.service';
-import QuizEntity from './entity/quiz.entity';
-import UserEntity from '../user/entity/user.entity';
+import QuizEntity from './quiz.entity';
+import UserEntity from '../user/user.entity';
+import AuthGuard from '../guard/auth.guard';
 
 @Controller('quiz')
 export class QuizController {
   constructor(private quizService: QuizService) {}
 
-  @Get()
+  @Get('/')
   async getAll(): Promise<QuizEntity[]> {
     return this.quizService.getAll();
   }
 
-  @Post()
-  async createQuiz(@Body() body: QuizEntity): Promise<QuizEntity> {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    const user: UserEntity = {
-      id: 1,
-      email: 'user1@email.com',
-      password: 'sjdnf',
-    };
-    return await this.quizService.createQuiz(body, user);
+  @Post('/')
+  @UseGuards(AuthGuard)
+  async createQuiz(@Body() body: any) {
+    return this.quizService.createQuiz(body, user);
+  }
+
+  @Patch('/:id')
+  @UseGuards(AuthGuard)
+  async updateQuiz(@Body() body: any){
+
+  }
+
+  @Delete('/:id')
+  @UseGuards(AuthGuard)
+  async deleteQuiz(){
+
+  }
+
+  @Post('evaluate')
+  async evaluate(@Body() body: any){
+
   }
 }

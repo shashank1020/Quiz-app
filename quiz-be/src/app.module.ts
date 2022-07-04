@@ -4,16 +4,15 @@ import { AppService } from './app.service';
 import { UserModule } from './user/user.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { QuizModule } from './quiz/quiz.module';
-import QuizEntity from './quiz/entity/quiz.entity';
-import UserEntity from './user/entity/user.entity';
-import {JwtModule} from "@nestjs/jwt";
+import QuizEntity from './quiz/quiz.entity';
+import UserEntity from './user/user.entity';
 
 @Module({
   imports: [
     UserModule,
     TypeOrmModule.forRoot({
       type: 'sqlite',
-      database: 'database/QuizDB',
+      database: 'data.sqlite',
       entities: [QuizEntity, UserEntity],
       synchronize: true,
     }),

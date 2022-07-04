@@ -14,8 +14,13 @@ export default class QuizEntity extends BaseEntity {
   @Column({ default: false })
   published: boolean;
 
+  @Column()
+  questionCount: number;
+
   @Column({ type: 'simple-json', default: '{}' })
   questions: Array<Question>;
+
+
 }
 
 export interface Question {

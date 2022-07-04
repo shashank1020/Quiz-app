@@ -1,38 +1,37 @@
-import { ConflictException, Injectable } from '@nestjs/common';
-import UserEntity from './entity/user.entity';
+import { ConflictException, HttpException, Injectable } from '@nestjs/common';
+import UserEntity from './user.entity';
 import * as bcrypt from 'bcrypt';
+import * as jwt from 'jsonwebtoken';
+import { JWT_SECRET } from '../lib/constants';
 
 @Injectable()
 export class UserService {
-  async getAll() {
-    return await UserEntity.find();
-  }
-
-  async getOne(email) {
-    return await UserEntity.findOne({ where: { email } });
-  }
-
-  async create(user: UserEntity) {
-    const { email, password } = user;
-    const foundOne = await this.getOne(email);
-    if (foundOne) throw new ConflictException('user exist');
-
-    const salt = await bcrypt.genSalt();
-    const saltedPassword = await bcrypt.hash(password, salt);
-
+  async create({ email, password, name }) {
+    const user = await UserEntity.findOne({
+      where: { email: email.toLowerCase() },
+    });
+    if (user) throw new ConflictException('user exist with same email');
+    const saltedPassword = bcrypt.hashSync(password, 10);
     const newUser = new UserEntity();
     newUser.email = email.toLowerCase();
     newUser.password = saltedPassword;
+    newUser.name = name;
     await newUser.save();
     return newUser;
   }
 
-  async login(userData: UserEntity) {
-    const foundOne = await this.getOne(userData.email);
-    if (foundOne) {
-      if (await bcrypt.compare(userData.password, foundOne.password)) {
-        return { id: foundOne.id, email: userData.email };
-      }
+  async login({ email, password }) {
+    const user = await UserEntity.findOne({
+      where: { email: email.toLowerCase() },
+    });
+    if (user && bcrypt.compareSync(password, user.password)) {
+      return {
+        ...user,
+        password: undefined,
+        token: jwt.sign({ userId: user.id }, JWT_SECRET),
+      };
+    } else {
+      return new HttpException('Username and password do not match', 400);
     }
   }
 }

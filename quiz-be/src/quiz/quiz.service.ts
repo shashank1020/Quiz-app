@@ -4,15 +4,28 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import QuizEntity, { Question } from './entity/quiz.entity';
-import UserEntity from '../user/entity/user.entity';
+import QuizEntity, { Question } from './quiz.entity';
+import UserEntity from '../user/user.entity';
 
 @Injectable()
 export class QuizService {
-  async getAll() {
-    return await QuizEntity.find();
+  async getAll({page}) {
+    const quizes = await QuizEntity.find({
+      where: { published: true },
+      take: 10,
+      skip: 0,
+      select: ['id', 'permalink', 'userId', 'questionCount'],
+    });
+    const totalCount = await QuizEntity.count({
+      where: { published: true },
+    });
+
+    return {
+      quizes,
+      totalCount,
+    };
   }
-  async getUserQuizs(userId: number) {
+  async getUserQuiz(userId: number) {
     return await QuizEntity.find({ where: { userId } });
   }
 

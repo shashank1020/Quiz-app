@@ -1,6 +1,6 @@
 import { Body, Controller, HttpCode, Post } from '@nestjs/common';
 import { UserService } from './user.service';
-import UserEntity from './entity/user.entity';
+import UserEntity from './user.entity';
 
 @Controller('user')
 export class UserController {
@@ -9,10 +9,11 @@ export class UserController {
   @HttpCode(200)
   @Post('login')
   async login(@Body() body: any) {
-    return await this.userService.login(body);
+    return this.userService.login(body);
   }
+
   @Post('signup')
   async signup(@Body() body): Promise<UserEntity> {
-    return await this.userService.create(body);
+    return this.userService.create(body);
   }
 }
