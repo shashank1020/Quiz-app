@@ -6,10 +6,11 @@ import {
 } from '@nestjs/common';
 import QuizEntity, { Question } from './quiz.entity';
 import UserEntity from '../user/user.entity';
+import { quizQuestionsValidator } from './quiz.validator';
 
 @Injectable()
 export class QuizService {
-  async getAll({page}) {
+  async getAll({ page }) {
     const quizes = await QuizEntity.find({
       where: { published: true },
       take: 10,
@@ -30,19 +31,21 @@ export class QuizService {
   }
 
   async getQuiz(permalink: string) {
-    return await QuizEntity.findOne({
-      where: { permalink },
-    });
-  }
-
-  async saveQuiz(quiz: QuizEntity): Promise<QuizEntity> {
-    return await QuizEntity.save(quiz);
+    const quiz = await QuizEntity.findOne({ where: { permalink } });
+    if (!quiz) throw new NotFoundException();
+    quiz.questions = quiz.questions.map((question) => ({
+      ...question,
+      correctOptions: undefined,
+    }));
+    return quiz;
   }
 
   async createQuiz(
     quizForm: QuizEntity,
     authUser: UserEntity,
   ): Promise<QuizEntity> {
+    quizQuestionsValidator(quizForm.questions);
+
     let link = QuizService.randomPermaLink();
     const allQuizParamLinks = await this.getAll().then((data) => {
       return data.map((q) => q.permalink);
