@@ -4,8 +4,8 @@ import EditIcon from '@mui/icons-material/Edit';
 import styled from "styled-components";
 
 
-const QuestionViewCard = ({question, deleteQuestion, index, isPublished, setEdit}) => {
-    return(
+const BriefQuestionVewCard = ({question, deleteQuestion, index, isPublished, setEdit}) => {
+    return (
         <Wrapper>
             <CardContent>
                 <Typography variant='h5' component='div'>Q.{index + 1} {question.title}</Typography>
@@ -18,14 +18,14 @@ const QuestionViewCard = ({question, deleteQuestion, index, isPublished, setEdit
                         onClick={() => deleteQuestion(index)}><DeleteIcon/>
                 </Button>
                 <Button variant='contained' color='success'
-                        onClick={() => setEdit({[index]: true})}><EditIcon/>
+                        onClick={() => setEdit(index)}><EditIcon/>
                 </Button>
             </CardActions>}
         </Wrapper>
     )
 }
 
-export default QuestionViewCard;
+export default BriefQuestionVewCard;
 
 const Wrapper = styled(Card)`
   margin: 10px;

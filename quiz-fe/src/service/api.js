@@ -10,7 +10,7 @@ const headerConfig = (jwt) => {
 
 export const loginUserService = async ({email, password}) => {
     // return  {data: {name: 'Shas', email: 'shas@email.com', id: 1, token: 'random-token'}}
-    return axios.post(`${BASEURL}/user/login`, {email, password})
+    return axios.post(`${BASEURL}/user/login`, {email, password}).then(response => response.data)
 }
 
 export const signUpService = ({name, email, password}) => axios.post(`${BASEURL}/user/signup`, {
@@ -48,6 +48,5 @@ export const createQuiz = ({title, questions, published}, token) => {
 }
 
 export const evaluateQuiz = ({permalink, questions}) => {
-    console.log(questions, 'api')
     return axios.post(`${BASEURL}/quiz/evaluate/${permalink}`, {questions}).then(response => response.data)
 }

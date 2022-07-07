@@ -1,7 +1,7 @@
 import {useContext, useEffect, useState} from "react";
 import {getAllQuiz, getAllUserQuiz} from "../service/api";
 import styled from "styled-components";
-import BriefQuizDetail from "../component/brief-quiz-detail";
+import BriefQuizDetailCard from "../component/brief-quiz-detail-card";
 import {Grid, Pagination, Typography} from "@mui/material";
 import {useLocation} from "react-router-dom";
 import {errorToast} from "../lib/common";
@@ -17,7 +17,7 @@ const HomePage = () => {
     const [refresh, setRefresh] = useState(false)
     useEffect(() => {
         if (isMyQuiz) {
-            getAllUserQuiz({page: pages.currPage},user.token)
+            getAllUserQuiz({page: pages.currPage}, user.token)
                 .then((data) => {
                     setQuizList(data)
                     setPages({currPage: data.page, totalPages: data.pageCount})
@@ -40,9 +40,7 @@ const HomePage = () => {
             </Typography>}
             {user && isMyQuiz && <Typography variant='h4' component='div'>All Quizs of {user.name}</Typography>}
             <Typography variant='subtitle1' component='p'>Total Quizs: {quizList?.totalQuiz}</Typography>
-            <div className="brief-container">
-                {quizList && quizList?.quizes?.map(quiz => <BriefQuizDetail setRefresh={setRefresh} quizObj={quiz}/>)}
-            </div>
+            {quizList && quizList?.quizes?.map(quiz => <BriefQuizDetailCard setRefresh={setRefresh} quizObj={quiz}/>)}
             <Grid className="pagination center">
                 {quizList.quizes && quizList.quizes.length > 0 && <Pagination
                     count={pages.totalPages}

@@ -34,8 +34,8 @@ export class QuizController {
   @HttpCode(200)
   @Get('/user-quiz')
   @UseGuards(AuthGuard)
-  getAllUserQuiz(@Query('page') page: number, @Request() req) {
-    return this.quizService.getAll(page, req);
+  getLoggedUserQuiz(@Query('page') page: number, @Request() req) {
+    return this.quizService.getAll(page, req.user);
   }
 
   @Get('/:permalink')

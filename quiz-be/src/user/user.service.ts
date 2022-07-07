@@ -36,7 +36,7 @@ export class UserService {
         token: jwt.sign({ userId: user.id }, JWT_SECRET),
       };
     } else {
-      return new BadRequestException('Username or password do not match');
+      throw new BadRequestException('Username or password do not match');
     }
   }
 }

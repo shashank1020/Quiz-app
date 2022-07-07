@@ -1,5 +1,7 @@
 import {toast} from "react-toastify";
 
+export const trim = (string) => string.toString().replace(/ +/g, ' ')
+
 export const warningToast = (e) => toast.warning(e?.response?.data?.message.toString().replace('\\', ''))
 export const errorToast = (e) => toast.error(e?.response?.data?.message.toString().replace('\\', ''))
 
@@ -13,40 +15,68 @@ export const validateEmail = (email) => {
 }
 
 export const validatePassword = (pass) => {
-    const password = pass.toString()
-    const validate = /^(?=.*\d)(?=.*[a-z])(?=.*[^a-zA-Z0-9])(?!.*\s).{6,15}$/.test(password)
-    if (!validate) {
-        toast.warning('password should be least 6 char,have  one special char, one number and one capital')
+    const isNonWhiteSpace = /^\S*$/;
+    if (!isNonWhiteSpace.test(pass)) {
+        toast.warning("Password must not contain Whitespaces.");
+        return false;
+    }
+
+    const isContainsUppercase = /^(?=.*[A-Z]).*$/;
+    if (!isContainsUppercase.test(pass)) {
+        toast.warning("Password must have at least one Uppercase Character.");
+        return false;
+    }
+
+    const isContainsLowercase = /^(?=.*[a-z]).*$/;
+    if (!isContainsLowercase.test(pass)) {
+        toast.warning("Password must have at least one Lowercase Character.");
+        return false;
+    }
+
+    const isContainsNumber = /^(?=.*[0-9]).*$/;
+    if (!isContainsNumber.test(pass)) {
+        toast.warning("Password must contain at least one Digit.");
+        return false;
+    }
+
+    const isContainsSymbol =
+        /^(?=.*[~`!@#$%^&*()--+={}\[\]|\\:;"'<>,.?/_₹]).*$/;
+    if (!isContainsSymbol.test(pass)) {
+        toast.warning("Password must contain at least one Special Symbol.");
+        return false;
+    }
+
+    const isValidLength = /^.{6,16}$/;
+    if (!isValidLength.test(pass)) {
+        toast.warning("Password must be 10-16 Characters Long.");
+        return false;
+    }
+    return true;
+}
+
+export const quizQuestionsValidator = (questions) => {
+    if (questions.length > 10) {
+        toast.warning('Questions cannot be more then 10');
+    }
+    return hasDuplicatesQuestions(questions)
+};
+
+export const hasDuplicatesQuestions = (quesArr) => {
+    const onlyQues = new Set(quesArr.map((q) => q.title))
+    if (onlyQues.size !== quesArr.length) {
+        toast.warning('Duplicate questions found')
+        return false
+    }
+    return true
+};
+export const hasDuplicateOptions = (options) => {
+    const filtered = new Set(options)
+    if (filtered.size !== options.length) {
+        toast.warning('Duplicate options found')
         return false
     }
     return true
 }
-
-
-export const quizQuestionsValidator = (questions) => {
-    if(hasDuplicates(questions)){
-        toast.warning('form have duplicates')
-        return false
-    }
-    if (questions.length > 10) {
-        toast.warning('Questions cannot be more then 10');
-    }
-    for (const ques of questions) {
-        return validateQuestion(ques)
-    }
-};
-
-export const hasDuplicates = (quesArr) => {
-    const onlyQues = quesArr.map((q) => q.title);
-    for (let i = 0; i < onlyQues.length; i++) {
-        const title = onlyQues[i];
-        if (onlyQues.includes(title, i + 1)) {
-            return false
-        }
-    }
-    return true
-};
-
 export const validateQuestion = (question) => {
     if (
         question.options.length > 5 ||
@@ -68,8 +98,9 @@ export const validateQuestion = (question) => {
         return false
     }
 
-    for (const option in question.options) {
-        if (question.options[option] === ''){
+    for (const optionIndex in question.options) {
+        const optionValue = question.options[optionIndex]
+        if (optionValue === '') {
             toast.warning('Option cannot be empty')
             return false
         }

@@ -14,11 +14,11 @@ import * as lodash from 'lodash';
 export class QuizService {
   async getAll(page: number, authUser: UserEntity = null) {
     page = Math.max(Number(page) || 1, 1);
-    const where = {};
+    let where = {};
     if (authUser) {
-      where['userId'] = authUser.id;
+      where = { ...where, userId: authUser.id };
     } else {
-      where['published'] = true;
+      where = { ...where, published: true };
     }
     const quizes = await QuizEntity.find({
       where,

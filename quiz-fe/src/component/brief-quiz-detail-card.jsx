@@ -14,7 +14,7 @@ import {errorToast} from "../lib/common";
 import DraftsIcon from '@mui/icons-material/Drafts';
 
 
-const BriefQuizDetail = ({quizObj, setRefresh}) => {
+const BriefQuizDetailCard = ({quizObj, setRefresh}) => {
     const navigate = useNavigate()
     const location = useLocation()
     const isMyQuiz = location.pathname.includes('myquiz')
@@ -42,7 +42,7 @@ const BriefQuizDetail = ({quizObj, setRefresh}) => {
                             <EditIcon color='success'/>
                         </IconButton>
                     </Tooltip>}
-                    {user && isMyQuiz && <Tooltip title='delete' >
+                    {user && isMyQuiz && <Tooltip title='delete'>
                         <IconButton onClick={handleDelete}>
                             <DeleteIcon/>
                         </IconButton>
@@ -57,14 +57,15 @@ const BriefQuizDetail = ({quizObj, setRefresh}) => {
                         </IconButton>
                     </Tooltip>}
                 </Box>
-                {quizObj.published && <Button onClick={() => navigate(`/quiz/${quizObj.permalink}`)}>Play this quiz</Button>}
+                {quizObj.published &&
+                    <Button onClick={() => navigate(`/quiz/${quizObj.permalink}`)}>Play this quiz</Button>}
             </CardActions>
         </StyledCard>
     )
 }
-export default BriefQuizDetail;
+export default BriefQuizDetailCard;
 
 const StyledCard = styled(Card)`
-  min-width: 400px;
+  min-width: 600px;
   margin: 5px;
 `

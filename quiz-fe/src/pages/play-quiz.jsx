@@ -12,7 +12,7 @@ import {
     ListItemText,
     Typography
 } from "@mui/material";
-import {useParams} from "react-router-dom";
+import {useNavigate, useParams} from "react-router-dom";
 import {useEffect, useState} from "react";
 import {evaluateQuiz, getByPermalink} from "../service/api";
 import {errorToast} from "../lib/common";
@@ -23,7 +23,9 @@ const PlayQuizPage = () => {
     const {permalink} = useParams();
     const [title, setTitle] = useState('')
     const [questions, setQuestions] = useState([])
+    const [showResult, setShowResult] = useState(false)
     const [result, setResult] = useState({})
+    const navigate = useNavigate()
     useEffect(() => {
         if (permalink)
             getByPermalink({permalink})
@@ -66,36 +68,40 @@ const PlayQuizPage = () => {
             evaluateQuiz({permalink, questions}).then(data => {
                 setResult(data)
                 toast.info(data.msg)
+                setShowResult(true)
             }).catch(e => errorToast(e))
     }
 
-    if (result !== {})
+    if (result !== {} && showResult)
         return (
-            <Wrapper>
-                <div className="center">
-                    <Alert severity="info">Thanks for Playing the Quiz. Below is your report</Alert>
+            <Result>
+                <div className='center-div'>
+                    <Alert severity="info" className='space'>Thanks for Playing the Quiz. Below is your report</Alert>
                     <List className='list-wrapper' component="nav" aria-label="mailbox folders">
                         <ListItem span>
-                            <ListItemText primary="Total Questions: 100"></ListItemText>
+                            <ListItemText primary={`Total Questions: ${result.total}`}/>
                         </ListItem>
                         <Divider/>
                         <ListItem span divider>
-                            <ListItemText primary="Drafts"/>
+                            <ListItemText primary={`You have Scored: ${result.scored}`}/>
                         </ListItem>
                         <ListItem span>
-                            <ListItemText primary="Trash"/>
+                            <ListItemText primary={`Wrong answered : ${result.wrong}`}/>
                         </ListItem>
                         <Divider light/>
                         <ListItem span>
-                            <ListItemText primary="Spam"/>
+                            <ListItemText primary={`Not attempted: ${result.unanswered}`}/>
                         </ListItem>
                     </List>
+                    <div className="button">
+                        <Button onClick={() => navigate('/')} variant='text'>Go to Home</Button>
+                    </div>
                 </div>
-            </Wrapper>
+            </Result>
         );
     return (
         <Wrapper>
-            {title && questions.length > 0 && <Box className='center'>
+            {title && questions.length > 0 && <Box>
                 <div className='center'>
                     <Typography variant='h3'>{title}</Typography>
                 </div>
@@ -130,6 +136,36 @@ const PlayQuizPage = () => {
 
 export default PlayQuizPage;
 
+const Result = styled.div`
+  height: calc(100vh - 65px);
+  display: flex;
+  justify-content: center;
+
+  top: 40vh;
+
+  .space {
+    margin: 20px 0;
+  }
+
+  .button {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0;
+  }
+
+  .center-div {
+    width: 400px;
+    top: 50%;
+    left: 50%;
+    //transform: translate(-50%,-50%);
+  }
+
+  .list-wrapper {
+    width: 100%;
+    box-shadow: 3px 1px 5px 0px rgba(0, 0, 0, 0.53);
+  }
+`
+
 const Wrapper = styled.div`
 
   .card {
@@ -161,8 +197,5 @@ const Wrapper = styled.div`
       width: 300px;
     }
   }
-  .list-wrapper {
-    max-width: 360px;
-    width: 100%;
-  }
+
 `

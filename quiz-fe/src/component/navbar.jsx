@@ -30,7 +30,8 @@ const NavBar = () => {
                             </>)}
                     </Box>
                     {!user && <Button color="inherit" onClick={() => navigate('/login')}>Login</Button>}
-                    {user && <Button onClick={() => logoutUser()}  className='ml'>Logout</Button>}
+                    {user && <Typography variant='h5'>{user.name}</Typography>}
+                    {user && <Button onClick={() => logoutUser()} className='ml'>Logout</Button>}
                 </Toolbar>
             </CustomNavBar>
         </Box>
@@ -41,19 +42,24 @@ export default NavBar;
 
 
 const CustomNavBar = styled(AppBar)`
+  height: 65px;
+
   button {
     color: white;
   }
+
   .left-side {
     display: flex;
     align-items: center;
     flex: 1;
   }
+
   .logo {
     margin-right: 10px;
     font-weight: 600;
     cursor: pointer;
   }
+
   .ml {
     margin-left: 10px;
   }

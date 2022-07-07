@@ -8,7 +8,7 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import {signUpService} from "../service/api";
 // notification
 import {toast} from "react-toastify";
-import {warningToast, validateEmail, validatePassword} from "../lib/common";
+import {validateEmail, validatePassword, warningToast} from "../lib/common";
 
 export default function SignUpPage() {
     const navigate = useNavigate()
