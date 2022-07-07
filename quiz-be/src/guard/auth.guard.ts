@@ -15,10 +15,8 @@ export default class AuthGuard implements CanActivate {
       const { userId } = jwt.verify(jwtToken, JWT_SECRET) as { userId: number };
       const user = await UserEntity.findOne({ where: { id: userId } });
       if (user) {
-        request.user = user;
+        request.user = { ...user, password: undefined };
         return true;
-      } else {
-        throw new UnauthorizedException();
       }
     } catch (e) {
       throw new UnauthorizedException();

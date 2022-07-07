@@ -1,4 +1,9 @@
-import { ConflictException, HttpException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  HttpException,
+  Injectable,
+} from '@nestjs/common';
 import UserEntity from './user.entity';
 import * as bcrypt from 'bcrypt';
 import * as jwt from 'jsonwebtoken';
@@ -17,7 +22,7 @@ export class UserService {
     newUser.password = saltedPassword;
     newUser.name = name;
     await newUser.save();
-    return newUser;
+    return { ...newUser, password: undefined };
   }
 
   async login({ email, password }) {
@@ -31,7 +36,7 @@ export class UserService {
         token: jwt.sign({ userId: user.id }, JWT_SECRET),
       };
     } else {
-      return new HttpException('Username and password do not match', 400);
+      return new BadRequestException('Username or password do not match');
     }
   }
 }

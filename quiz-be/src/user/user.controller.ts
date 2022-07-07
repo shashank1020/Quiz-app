@@ -1,6 +1,11 @@
 import { Body, Controller, HttpCode, Post } from '@nestjs/common';
 import { UserService } from './user.service';
-import UserEntity from './user.entity';
+
+import {
+  createUserSchema,
+  joiValidate,
+  loginUserSchema,
+} from '../lib/validator';
 
 @Controller('user')
 export class UserController {
@@ -9,11 +14,13 @@ export class UserController {
   @HttpCode(200)
   @Post('login')
   async login(@Body() body: any) {
+    joiValidate(loginUserSchema, body);
     return this.userService.login(body);
   }
 
   @Post('signup')
-  async signup(@Body() body): Promise<UserEntity> {
+  async signup(@Body() body) {
+    joiValidate(createUserSchema, body);
     return this.userService.create(body);
   }
 }

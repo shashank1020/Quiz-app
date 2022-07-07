@@ -1,38 +1,81 @@
-import {Body, Controller, Delete, Get, Patch, Post, UseGuards} from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Request,
+  Delete,
+  Get,
+  Patch,
+  Post,
+  UseGuards,
+  Param,
+  Query,
+  BadRequestException,
+  HttpCode,
+} from '@nestjs/common';
 import { QuizService } from './quiz.service';
-import QuizEntity from './quiz.entity';
-import UserEntity from '../user/user.entity';
 import AuthGuard from '../guard/auth.guard';
+import {
+  createQuizSchema,
+  evaluateSchema,
+  joiValidate,
+  updateQuizSchema,
+} from '../lib/validator';
 
 @Controller('quiz')
 export class QuizController {
   constructor(private quizService: QuizService) {}
 
+  @HttpCode(200)
   @Get('/')
-  async getAll(): Promise<QuizEntity[]> {
-    return this.quizService.getAll();
+  getAll(@Query('page') page: number) {
+    return this.quizService.getAll(page);
   }
 
-  @Post('/')
+  @HttpCode(200)
+  @Get('/user-quiz')
   @UseGuards(AuthGuard)
-  async createQuiz(@Body() body: any) {
-    return this.quizService.createQuiz(body, user);
+  getAllUserQuiz(@Query('page') page: number, @Request() req) {
+    return this.quizService.getAll(page, req);
   }
 
-  @Patch('/:id')
+  @Get('/:permalink')
+  getByPeramlink(@Param('permalink') permalink: string) {
+    return this.quizService.getQuiz(permalink);
+  }
+  @Get('/edit/:permalink')
   @UseGuards(AuthGuard)
-  async updateQuiz(@Body() body: any){
+  getByUserPermalink(@Param('permalink') permalink: string, @Request() req) {
+    return this.quizService.getQuiz(permalink, req.user);
+  }
 
+  @Post('/create')
+  @UseGuards(AuthGuard)
+  async createQuiz(@Body() body, @Request() req) {
+    joiValidate(createQuizSchema, body);
+    return this.quizService.createQuiz(body, req.user);
+  }
+
+  @Patch('/:permalink')
+  @UseGuards(AuthGuard)
+  async updateQuiz(
+    @Param('permalink') permalink,
+    @Body() body: any,
+    @Request() req,
+  ) {
+    joiValidate(updateQuizSchema, body);
+    return this.quizService.updateQuiz(permalink, body, req.user);
   }
 
   @Delete('/:id')
   @UseGuards(AuthGuard)
-  async deleteQuiz(){
-
+  async deleteQuiz(@Param('id') id: string, @Request() req) {
+    return this.quizService.deleteQuiz(Number(id), req.user);
   }
 
-  @Post('evaluate')
-  async evaluate(@Body() body: any){
-
+  @HttpCode(200)
+  @Post('evaluate/:permalink')
+  async evaluate(@Param('permalink') permalink, @Body() body: any) {
+    joiValidate(evaluateSchema, body);
+    return this.quizService.evaluateQuiz(permalink, body.questions);
   }
 }

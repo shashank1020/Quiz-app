@@ -4,83 +4,100 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import QuizEntity, { Question } from './quiz.entity';
+import QuizEntity, { Question, Quiz } from './quiz.entity';
 import UserEntity from '../user/user.entity';
 import { quizQuestionsValidator } from './quiz.validator';
+import { PageSize } from '../lib/constants';
+import * as lodash from 'lodash';
 
 @Injectable()
 export class QuizService {
-  async getAll({ page }) {
+  async getAll(page: number, authUser: UserEntity = null) {
+    page = Math.max(Number(page) || 1, 1);
+    const where = {};
+    if (authUser) {
+      where['userId'] = authUser.id;
+    } else {
+      where['published'] = true;
+    }
     const quizes = await QuizEntity.find({
-      where: { published: true },
-      take: 10,
-      skip: 0,
-      select: ['id', 'permalink', 'userId', 'questionCount'],
+      where,
+      skip: (page - 1) * PageSize,
+      select: [
+        'id',
+        'permalink',
+        'userId',
+        'title',
+        'published',
+        'questionCount',
+      ],
     });
-    const totalCount = await QuizEntity.count({
-      where: { published: true },
+    const totalQuiz = await QuizEntity.count({
+      where,
     });
-
+    const pageCount = Math.ceil(totalQuiz / PageSize);
     return {
       quizes,
-      totalCount,
+      page,
+      pageCount,
+      totalQuiz,
     };
   }
-  async getUserQuiz(userId: number) {
-    return await QuizEntity.find({ where: { userId } });
-  }
 
-  async getQuiz(permalink: string) {
+  async getQuiz(permalink: string, authUser: UserEntity = null) {
     const quiz = await QuizEntity.findOne({ where: { permalink } });
     if (!quiz) throw new NotFoundException();
-    quiz.questions = quiz.questions.map((question) => ({
-      ...question,
-      correctOptions: undefined,
-    }));
+    if (!authUser)
+      quiz.questions = quiz.questions.map((question) => ({
+        ...question,
+        correctOptions: undefined,
+      }));
     return quiz;
   }
 
-  async createQuiz(
-    quizForm: QuizEntity,
-    authUser: UserEntity,
-  ): Promise<QuizEntity> {
+  async createQuiz(quizForm: Quiz, authUser: UserEntity): Promise<QuizEntity> {
     quizQuestionsValidator(quizForm.questions);
-
-    let link = QuizService.randomPermaLink();
-    const allQuizParamLinks = await this.getAll().then((data) => {
+    let link = QuizService.getRandomPermaLink();
+    const allQuizParamLinks = await QuizEntity.find({}).then((data) => {
       return data.map((q) => q.permalink);
     });
 
     while (true) {
       if (allQuizParamLinks.includes(link))
-        link = QuizService.randomPermaLink();
+        link = QuizService.getRandomPermaLink();
       else break;
     }
-    console.log(link);
-
     const newQuiz = new QuizEntity();
     newQuiz.userId = authUser.id;
     newQuiz.permalink = link;
-    newQuiz.published = quizForm.published;
-    newQuiz.questions = this.removeDuplicates(quizForm.questions);
-    await this.saveQuiz(newQuiz);
+    newQuiz.title = quizForm.title;
+    newQuiz.published = quizForm?.published || false;
+    newQuiz.questions = quizForm.questions;
+    newQuiz.questionCount = quizForm.questions.length;
+    await QuizEntity.save(newQuiz);
     return newQuiz;
   }
 
   async updateQuiz(
-    quizForm: QuizEntity,
+    peramlink: string,
+    quizForm: Quiz,
     authUser: UserEntity,
-  ): Promise<QuizEntity> {
-    const quiz = await this.getQuiz(quizForm.permalink);
+  ): Promise<Quiz> {
+    const quiz = await this.getQuiz(peramlink);
     if (quiz) {
       if (!quiz.published) {
         if (quiz.userId === authUser.id) {
-          quiz.questions = this.removeDuplicates(quizForm.questions);
-          quiz.published = quizForm.published;
-          return await this.saveQuiz(quiz);
+          if (quizForm?.questions) {
+            quizQuestionsValidator(quizForm?.questions);
+            quiz.questions = quizForm.questions;
+            quiz.questionCount = quizForm.questions.length;
+          }
+          quiz.published = quizForm?.published || false;
+          quiz.title = quizForm?.title || quiz.title;
+          return await QuizEntity.save(quiz);
         }
         throw new UnauthorizedException(
-          'you are not authorized to updated this',
+          'you are not authorized to updated this quiz',
         );
       }
       throw new MethodNotAllowedException("can't update the published quiz");
@@ -88,28 +105,54 @@ export class QuizService {
     throw new NotFoundException('quiz doesnt exist');
   }
 
-  async deleteQuiz(id: number) {
-    return await QuizEntity.delete(id);
+  async deleteQuiz(id: number, authUser: UserEntity) {
+    const quiz = await QuizEntity.findOne({ where: { id } });
+    if (quiz) {
+      if (quiz.userId === authUser.id) {
+        return await QuizEntity.delete(id);
+      } else
+        throw new UnauthorizedException(
+          'you are not allowed to delete this quiz',
+        );
+    } else throw new NotFoundException();
   }
 
-  private removeDuplicates(quesArr: Question[]) {
-    const onlyQues = quesArr.map((q) => q.question);
-    return quesArr.filter(
-      ({ question }, index) => !onlyQues.includes(question, index + 1),
-    );
-  }
-
-  private static randomPermaLink() {
-    const result = [];
-
-    let strLength = 6;
-    const charSet =
-      'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-
-    while (strLength--) {
-      result.push(charSet.charAt(Math.floor(Math.random() * charSet.length)));
+  async evaluateQuiz(permalink, answeredData: Question[]) {
+    const quiz = await QuizEntity.findOne({
+      where: { permalink },
+    });
+    let score = 0;
+    let unanswered = 0;
+    const total = quiz.questions.length;
+    if (quiz) {
+      for (const i in answeredData) {
+        if (
+          answeredData[i]?.chosenOptions &&
+          answeredData[i].chosenOptions.length > 0
+        ) {
+          const chosenOptions = answeredData[i]?.chosenOptions || [];
+          const correctOptions = quiz.questions[i].correctOptions;
+          if (lodash.isEqual(chosenOptions.sort(), correctOptions.sort())) {
+            score++;
+          }
+        } else {
+          unanswered++;
+        }
+      }
+      return {
+        scored: score,
+        wrong: total - score - unanswered,
+        unanswered,
+        total: total,
+        msg: 'You answered ' + score + '/' + total + ' questions correctly',
+      };
     }
+    throw new NotFoundException();
+  }
 
-    return result.join('');
+  private static getRandomPermaLink(): string {
+    return (
+      Math.random().toString(36).substr(2, 5) + Math.floor(Math.random() * 10)
+    );
   }
 }

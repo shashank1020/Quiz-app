@@ -5,10 +5,13 @@ export default class QuizEntity extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ nullable: true })
+  @Column()
   permalink: string;
 
-  @Column({ nullable: true })
+  @Column()
+  title: string;
+
+  @Column()
   userId: number;
 
   @Column({ default: false })
@@ -19,13 +22,22 @@ export default class QuizEntity extends BaseEntity {
 
   @Column({ type: 'simple-json', default: '{}' })
   questions: Array<Question>;
-
-
 }
 
 export interface Question {
   type: 'single' | 'multiple';
-  question: string;
+  title: string;
   options: string[];
-  correctOptions: string[];
+  correctOptions?: string[];
+  chosenOptions?: string[];
+}
+
+export interface Quiz {
+  id: number;
+  permalink: string;
+  userId: number;
+  title: string;
+  published: boolean;
+  questionCount: number;
+  questions: Array<Question>;
 }
