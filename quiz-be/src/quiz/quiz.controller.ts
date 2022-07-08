@@ -10,7 +10,9 @@ import {
   Param,
   Query,
   BadRequestException,
-  HttpCode, SetMetadata, Req,
+  HttpCode,
+  SetMetadata,
+  Req,
 } from '@nestjs/common';
 import { QuizService } from './quiz.service';
 import AuthGuard from '../guard/auth.guard';
@@ -36,7 +38,7 @@ export class QuizController {
   @SetMetadata('optionalAuth', true)
   @UseGuards(AuthGuard)
   getByPermalink(@Param('permalink') permalink: string, @Req() req) {
-    return this.quizService.getQuiz(permalink);
+    return this.quizService.getQuiz(permalink, req.user);
   }
 
   @Post('/')

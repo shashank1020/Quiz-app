@@ -2,7 +2,7 @@ import {useContext, useEffect, useState} from "react";
 import {Alert, Box, Button, TextField, Typography} from "@mui/material";
 import styled from "styled-components";
 import {useLocation, useNavigate, useParams} from "react-router-dom";
-import {createQuiz, getByPermalink, getByUserPermalink, updateQuiz} from "../service/api";
+import {createQuiz, getByPermalink, updateQuiz} from "../service/api";
 import {errorToast, quizQuestionsValidator, trim} from "../lib/common";
 import {UserAuthContext} from "../lib/user-auth-context";
 import {toast} from "react-toastify";
@@ -21,7 +21,6 @@ const CreateQuizPage = () => {
     const [add, setAdd] = useState(false)
     const {user} = useContext(UserAuthContext)
     const navigate = useNavigate()
-
     const onQuestionUpdate = (newQues) => {
         if (isNumber(editIndex)) {
             questions[editIndex] = newQues
@@ -57,21 +56,14 @@ const CreateQuizPage = () => {
     }
 
     useEffect(() => {
-        if (permalink && !user)
-            getByPermalink({permalink})
-                .then(quiz => {
-                    setTitle(quiz.title);
-                    setQuestions(quiz.questions)
-                    setIsPublished(quiz.published)
-                }).catch(e => errorToast(e))
-        if (permalink && user)
+        if (permalink)
             getByPermalink({permalink}, user.token)
                 .then(quiz => {
                     setTitle(quiz.title);
                     setQuestions(quiz.questions)
                     setIsPublished(quiz.published)
                 }).catch(e => errorToast(e))
-        if (location.pathname.includes('create')) {
+        else {
             setQuestions([])
             setTitle('')
             setIsPublished(false)
@@ -109,14 +101,14 @@ const CreateQuizPage = () => {
             {add && <QuestionAddEditCard correctOptions={[]} type={'single'}
                                          title={''} options={[]}
                                          onQuestionUpdate={onQuestionUpdate} setAdd={setAdd}/>}
-            {questions.map((ques, index) => editIndex !== index ? <BriefQuestionVewCard deleteQuestion={deleteQuestion}
-                                                                                        question={ques} index={index}
-                                                                                        isPublished={isPublished}
-                                                                                        setEdit={setEditIndex}/> :
-                <QuestionAddEditCard correctOptions={ques.correctOptions} type={ques.type} title={ques.title}
-                                     options={ques.options} onQuestionUpdate={onQuestionUpdate} setEdit={setEditIndex}/>
-            )}
-
+            {questions.map((ques, index) => (editIndex !== index ? <BriefQuestionVewCard deleteQuestion={deleteQuestion}
+                                                                                         question={ques} index={index}
+                                                                                         isPublished={isPublished}
+                                                                                         setEdit={setEditIndex}/> :
+                    <QuestionAddEditCard correctOptions={ques.correctOptions} type={ques.type} title={ques.title}
+                                         options={ques.options} onQuestionUpdate={onQuestionUpdate}
+                                         setEdit={setEditIndex}/>
+            ))}
         </Wrapper>
     )
 }

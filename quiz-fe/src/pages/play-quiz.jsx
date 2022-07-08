@@ -30,7 +30,7 @@ const PlayQuizPage = () => {
     const navigate = useNavigate()
     useEffect(() => {
         if (permalink)
-            getByPermalink({permalink}, user.token)
+            getByPermalink({permalink})
                 .then(data => {
                     setTitle(data.title);
                     setQuestions(data.questions)

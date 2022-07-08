@@ -9,7 +9,6 @@ const headerConfig = (jwt) => {
 }
 
 export const loginUserService = async ({email, password}) => {
-    // return  {data: {name: 'Shas', email: 'shas@email.com', id: 1, token: 'random-token'}}
     return axios.post(`${BASEURL}/user/login`, {email, password}).then(response => response.data)
 }
 

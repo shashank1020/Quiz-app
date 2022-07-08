@@ -66,6 +66,6 @@ const BriefQuizDetailCard = ({quizObj, setRefresh}) => {
 export default BriefQuizDetailCard;
 
 const StyledCard = styled(Card)`
-  min-width: 600px;
+  width: 600px;
   margin: 5px;
 `

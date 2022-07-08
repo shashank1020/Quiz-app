@@ -22,6 +22,7 @@ export class QuizService {
     }
     const quizes = await QuizEntity.find({
       where,
+      take: PageSize,
       skip: (page - 1) * PageSize,
       select: [
         'id',
