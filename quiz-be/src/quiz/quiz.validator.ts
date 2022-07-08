@@ -34,6 +34,7 @@ export const validateQuestion = (question) => {
     question.options.length < 2 ||
     question.correctOptions.length > question.options.length
   ) {
+    console.log(question);
     throw new BadRequestException('options should be between 2 to 5');
   }
   if (question.correctOptions.length >= 1) {

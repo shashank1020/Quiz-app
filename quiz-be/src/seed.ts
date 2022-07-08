@@ -20,9 +20,15 @@ function createQuestions() {
     }
     for (let i = 0; i < get_random([2, 3, 4]); i++) {
       if (type === 'single') {
-        correctOption = [get_random(options)];
-      } else correctOption.push(options[i]);
+        const randomOption = get_random(options);
+        if (randomOption) correctOption = [randomOption];
+      } else {
+        if (options[i]) {
+          correctOption.push(options[i]);
+        }
+      }
     }
+    console.log(options);
     const question: Question = {
       type: type,
       title: faker.lorem.sentence(),

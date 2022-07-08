@@ -88,7 +88,7 @@ const CreateQuizPage = () => {
                            onChange={(e) => setTitle(trim(e.target.value))}/>
             </div>
             <div className='add-button'>
-                {!isPublished && questions.length <= 10 &&
+                {!isPublished && questions.length < 10 &&
                     <Button variant='contained' className='start' onClick={() => setAdd(true)}><AddIcon/></Button>}
                 <div className='end'>
                     {!isPublished && questions.length > 0 &&

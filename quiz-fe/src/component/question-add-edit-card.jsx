@@ -9,10 +9,9 @@ import {
     OutlinedInput,
     Select,
     Stack,
-    TextField,
-    Tooltip
+    TextField
 } from "@mui/material";
-import {useEffect, useState} from "react";
+import {useState} from "react";
 import IconButton from "@mui/material/IconButton";
 import MenuItem from "@mui/material/MenuItem";
 import styled from "styled-components";
@@ -32,13 +31,9 @@ const QuestionAddEditCard = ({onQuestionUpdate, ...props}) => {
     const handleSave = () => {
         const newCorrectOptions = correctOptions.filter(option => options.includes(option))
         setCorrectOptions([...newCorrectOptions])
-        if (validateQuestion({title, options, type, correctOptions:newCorrectOptions}) && hasDuplicateOptions(options))
-            onQuestionUpdate({title, options, type, correctOptions:newCorrectOptions})
+        if (validateQuestion({title, options, type, correctOptions: newCorrectOptions}) && hasDuplicateOptions(options))
+            onQuestionUpdate({title, options, type, correctOptions: newCorrectOptions})
     }
-
-    useEffect(() => {
-        console.log('correct Option', correctOptions)
-    }, [correctOptions])
 
     return <Wrapper>
         <Card className='quiz-card'>
@@ -119,13 +114,11 @@ const QuestionAddEditCard = ({onQuestionUpdate, ...props}) => {
                 })}
             </Stack>
             <CardActions className='action-button'>
-                <Tooltip title={'Add Option'}>
-                    {options && options?.length < 5 && <Fab color="secondary" aria-label="edit" onClick={() => {
-                        setOptions([...options, ''])
-                    }}>
-                        <AddIcon/>
-                    </Fab>}
-                </Tooltip>
+                {options && options?.length < 5 && <Fab color="secondary" aria-label="edit" onClick={() => {
+                    setOptions([...options, ''])
+                }}>
+                    <AddIcon/>
+                </Fab>}
                 <Button color="secondary" aria-label="edit" onClick={handleSave}>
                     Save Question
                 </Button>
