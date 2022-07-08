@@ -19,16 +19,12 @@ export const signUpService = ({name, email, password}) => axios.post(`${BASEURL}
     password
 }).then(response => response.data)
 
-export const getAllQuiz = ({page}) => axios.get(`${BASEURL}/quiz?page=${page}`).then(response => response.data)
+export const getAllQuiz = ({page}, token) => axios.get(`${BASEURL}/quiz?page=${page}`, headerConfig(token)).then(response => response.data)
 
-export const getAllUserQuiz = ({page}, token) => axios.get(`${BASEURL}/quiz/user-quiz?page=${page}`, headerConfig(token)).then(response => response.data)
+export const getByPermalink = ({permalink}, token) => {
+    return axios.get(`${BASEURL}/quiz/${permalink}`, headerConfig(token)).then(response => response.data)
+}
 
-export const getByPermalink = ({permalink}) => {
-    return axios.get(`${BASEURL}/quiz/${permalink}`).then(response => response.data)
-}
-export const getByUserPermalink = ({permalink}, token) => {
-    return axios.get(`${BASEURL}/quiz/edit/${permalink}`, headerConfig(token)).then(response => response.data)
-}
 export const deleteQuiz = ({id}, token) => {
     return axios.delete(`${BASEURL}/quiz/${id}`, headerConfig(token)).then(response => response.data)
 }
@@ -42,7 +38,7 @@ export const updateQuiz = (permalink, {
 }
 
 export const createQuiz = ({title, questions, published}, token) => {
-    return axios.post(`${BASEURL}/quiz/create`, {
+    return axios.post(`${BASEURL}/quiz`, {
         title, questions, published
     }, headerConfig(token)).then(response => response.data)
 }

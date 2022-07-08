@@ -12,7 +12,7 @@ import * as lodash from 'lodash';
 
 @Injectable()
 export class QuizService {
-  async getAll(page: number, authUser: UserEntity = null) {
+  async getAll(page: number, authUser?: UserEntity) {
     page = Math.max(Number(page) || 1, 1);
     let where = {};
     if (authUser) {
@@ -44,7 +44,7 @@ export class QuizService {
     };
   }
 
-  async getQuiz(permalink: string, authUser: UserEntity = null) {
+  async getQuiz(permalink: string, authUser?: UserEntity) {
     const quiz = await QuizEntity.findOne({ where: { permalink } });
     if (!quiz) throw new NotFoundException();
     if (!authUser)
@@ -57,19 +57,16 @@ export class QuizService {
 
   async createQuiz(quizForm: Quiz, authUser: UserEntity): Promise<QuizEntity> {
     quizQuestionsValidator(quizForm.questions);
-    let link = QuizService.getRandomPermaLink();
-    const allQuizParamLinks = await QuizEntity.find({}).then((data) => {
-      return data.map((q) => q.permalink);
-    });
+    let permalink = QuizService.getRandomPermaLink();
 
     while (true) {
-      if (allQuizParamLinks.includes(link))
-        link = QuizService.getRandomPermaLink();
+      const q = await QuizEntity.findOne({ where: { permalink } });
+      if (q) permalink = QuizService.getRandomPermaLink();
       else break;
     }
     const newQuiz = new QuizEntity();
     newQuiz.userId = authUser.id;
-    newQuiz.permalink = link;
+    newQuiz.permalink = permalink;
     newQuiz.title = quizForm.title;
     newQuiz.published = quizForm?.published || false;
     newQuiz.questions = quizForm.questions;

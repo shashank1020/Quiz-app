@@ -10,7 +10,7 @@ import {
   Param,
   Query,
   BadRequestException,
-  HttpCode,
+  HttpCode, SetMetadata, Req,
 } from '@nestjs/common';
 import { QuizService } from './quiz.service';
 import AuthGuard from '../guard/auth.guard';
@@ -25,30 +25,21 @@ import {
 export class QuizController {
   constructor(private quizService: QuizService) {}
 
-  @HttpCode(200)
   @Get('/')
-  getAll(@Query('page') page: number) {
-    return this.quizService.getAll(page);
-  }
-
-  @HttpCode(200)
-  @Get('/user-quiz')
+  @SetMetadata('optionalAuth', true)
   @UseGuards(AuthGuard)
-  getLoggedUserQuiz(@Query('page') page: number, @Request() req) {
+  getAll(@Query('page') page: number, @Req() req) {
     return this.quizService.getAll(page, req.user);
   }
 
   @Get('/:permalink')
-  getByPeramlink(@Param('permalink') permalink: string) {
+  @SetMetadata('optionalAuth', true)
+  @UseGuards(AuthGuard)
+  getByPermalink(@Param('permalink') permalink: string, @Req() req) {
     return this.quizService.getQuiz(permalink);
   }
-  @Get('/edit/:permalink')
-  @UseGuards(AuthGuard)
-  getByUserPermalink(@Param('permalink') permalink: string, @Request() req) {
-    return this.quizService.getQuiz(permalink, req.user);
-  }
 
-  @Post('/create')
+  @Post('/')
   @UseGuards(AuthGuard)
   async createQuiz(@Body() body, @Request() req) {
     joiValidate(createQuizSchema, body);
@@ -73,7 +64,7 @@ export class QuizController {
   }
 
   @HttpCode(200)
-  @Post('evaluate/:permalink')
+  @Post('/evaluate/:permalink')
   async evaluate(@Param('permalink') permalink, @Body() body: any) {
     joiValidate(evaluateSchema, body);
     return this.quizService.evaluateQuiz(permalink, body.questions);

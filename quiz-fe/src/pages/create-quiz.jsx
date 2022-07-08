@@ -65,7 +65,7 @@ const CreateQuizPage = () => {
                     setIsPublished(quiz.published)
                 }).catch(e => errorToast(e))
         if (permalink && user)
-            getByUserPermalink({permalink}, user.token)
+            getByPermalink({permalink}, user.token)
                 .then(quiz => {
                     setTitle(quiz.title);
                     setQuestions(quiz.questions)

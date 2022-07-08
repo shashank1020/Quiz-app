@@ -13,11 +13,12 @@ import {
     Typography
 } from "@mui/material";
 import {useNavigate, useParams} from "react-router-dom";
-import {useEffect, useState} from "react";
+import {useContext, useEffect, useState} from "react";
 import {evaluateQuiz, getByPermalink} from "../service/api";
 import {errorToast} from "../lib/common";
 import styled from 'styled-components';
 import {toast} from "react-toastify";
+import {UserAuthContext} from "../lib/user-auth-context";
 
 const PlayQuizPage = () => {
     const {permalink} = useParams();
@@ -25,10 +26,11 @@ const PlayQuizPage = () => {
     const [questions, setQuestions] = useState([])
     const [showResult, setShowResult] = useState(false)
     const [result, setResult] = useState({})
+    const {user} = useContext(UserAuthContext);
     const navigate = useNavigate()
     useEffect(() => {
         if (permalink)
-            getByPermalink({permalink})
+            getByPermalink({permalink}, user.token)
                 .then(data => {
                     setTitle(data.title);
                     setQuestions(data.questions)

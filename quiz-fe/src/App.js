@@ -50,11 +50,11 @@ function App() {
         <UserAuthContext.Provider value={{user, loginUser, logoutUser}}>
             <NavBar/>
             <Routes>
-                {user && <Route path='/myquiz' element={<HomePage/>}/>}
+                {user && <Route path='/myquiz' key={Math.random()} element={<HomePage/>}/>}
                 {user && <Route path='/quiz/create' element={<CreateQuizPage/>}/>}
                 {user && <Route path='/quiz/edit/:permalink' element={<CreateQuizPage/>}/>}
                 <Route path='/quiz/:permalink' element={<PlayQuizPage/>}/>
-                <Route path="/" element={<HomePage/>}/>
+                <Route path="/" key={Math.random()} element={<HomePage/>}/>
                 <Route path="login" element={<LogInPage/>}/>
                 <Route path='signup' element={<SignUpPage/>}/>
                 <Route path="*" element={<PageNotFoundPage/>}/>

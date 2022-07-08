@@ -16,21 +16,19 @@ const HomePage = () => {
     const {user} = useContext(UserAuthContext);
     const [refresh, setRefresh] = useState(false)
     useEffect(() => {
+        let p
         if (isMyQuiz) {
-            getAllUserQuiz({page: pages.currPage}, user.token)
-                .then((data) => {
-                    setQuizList(data)
-                    setPages({currPage: data.page, totalPages: data.pageCount})
-                })
-                .catch(e => errorToast(e))
+            p = getAllQuiz({page: pages.currPage}, user.token)
         } else {
-            getAllQuiz({page: pages.currPage})
-                .then((data) => {
-                    setQuizList(data)
-                    setPages({currPage: data.page, totalPages: data.pageCount})
-                })
-                .catch(e => errorToast(e))
+            p = getAllQuiz({page: pages.currPage})
         }
+        p.then((data) => {
+            setQuizList(data)
+            setPages({currPage: data.page, totalPages: data.pageCount})
+        }).catch(e => {
+                setQuizList([])
+                errorToast(e)
+            })
         setRefresh(false)
     }, [pages.currPage, location.pathname, refresh])
     return (
