@@ -30,7 +30,6 @@ const NavBar = () => {
                             </>)}
                     </Box>
                     {!user && <Button color="inherit" onClick={() => navigate('/login')}>Login</Button>}
-                    {user && <Typography variant='h5'>{user.name}</Typography>}
                     {user && <Button onClick={() => logoutUser()} className='ml'>Logout</Button>}
                 </Toolbar>
             </CustomNavBar>

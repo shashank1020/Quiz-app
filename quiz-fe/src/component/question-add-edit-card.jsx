@@ -9,7 +9,7 @@ import {
     OutlinedInput,
     Select,
     Stack,
-    TextField
+    TextField, Tooltip
 } from "@mui/material";
 import {useState} from "react";
 import IconButton from "@mui/material/IconButton";
@@ -21,7 +21,7 @@ import {hasDuplicateOptions, trim, validateQuestion} from "../lib/common";
 import DangerousSharpIcon from '@mui/icons-material/DangerousSharp';
 import DeleteForeverSharpIcon from '@mui/icons-material/DeleteForeverSharp';
 import CloseIcon from '@mui/icons-material/Close';
-
+import AddIcon from '@mui/icons-material/Add';
 
 const QuestionAddEditCard = ({onQuestionUpdate, ...props}) => {
     const [title, setTitle] = useState(props.title);
@@ -108,18 +108,19 @@ const QuestionAddEditCard = ({onQuestionUpdate, ...props}) => {
                 })}
             </Stack>
             <CardActions className='action-button'>
-
-                {options && options?.length < 5 && <Button variant='contained' aria-label="add" onClick={() => {
+                <Tooltip title={'Add Option'}>
+                {options && options?.length < 5 && <Fab color="secondary" aria-label="edit" onClick={() => {
                     setOptions([...options, ''])
                 }}>
-                    Add Option
-                </Button>}
-                <Fab color="secondary" aria-label="edit" onClick={() => {
+                    <AddIcon />
+                </Fab>}
+                </Tooltip>
+                <Button color="secondary" aria-label="edit" onClick={() => {
                     if (validateQuestion({title, options, type, correctOptions}) && hasDuplicateOptions(options))
                         onQuestionUpdate({title, options, type, correctOptions})
                 }}>
-                    <SaveIcon/>
-                </Fab>
+                    Save Question
+                </Button>
             </CardActions>
         </Card>
     </Wrapper>

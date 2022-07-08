@@ -35,7 +35,9 @@ const CreateQuizPage = () => {
         setQuestions([...questions])
     }
     const handleSaveQuiz = (published = false) => {
-        if (quizQuestionsValidator(questions))
+        if (title === ' ')
+            toast.warning('Quiz title cannot be empty')
+        else if (quizQuestionsValidator(questions))
             if (location.pathname.includes('create')) {
                 createQuiz({title, questions, published}, user.token)
                     .then(() => {
@@ -44,12 +46,13 @@ const CreateQuizPage = () => {
                     })
                     .catch(e => errorToast(e))
             } else {
-                updateQuiz(permalink, {title, questions, published}, user.token).then((data) => {
-                    toast.success('Quiz updated')
-                    setTitle(data.title)
-                    setQuestions(data.questions)
-                    setIsPublished(data.published)
-                }).catch(e => errorToast(e))
+                if (permalink)
+                    updateQuiz(permalink, {title, questions, published}, user.token).then((data) => {
+                        toast.success('Quiz updated')
+                        setTitle(data.title)
+                        setQuestions(data.questions)
+                        setIsPublished(data.published)
+                    }).catch(e => errorToast(e))
             }
     }
 
@@ -75,6 +78,9 @@ const CreateQuizPage = () => {
         }
     }, [permalink, location.pathname])
 
+    if (!user) {
+        navigate('/')
+    }
     return (
         <Wrapper>
             {isPublished && <Alert severity="info" sx={{mb: 2}}>Quiz is Published</Alert>}
