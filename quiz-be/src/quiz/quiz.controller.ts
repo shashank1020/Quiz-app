@@ -4,15 +4,14 @@ import {
   Request,
   Delete,
   Get,
-  Patch,
   Post,
   UseGuards,
   Param,
   Query,
-  BadRequestException,
   HttpCode,
   SetMetadata,
   Req,
+  Put,
 } from '@nestjs/common';
 import { QuizService } from './quiz.service';
 import AuthGuard from '../guard/auth.guard';
@@ -48,7 +47,7 @@ export class QuizController {
     return this.quizService.createQuiz(body, req.user);
   }
 
-  @Patch('/:permalink')
+  @Put('/:permalink')
   @UseGuards(AuthGuard)
   async updateQuiz(
     @Param('permalink') permalink,

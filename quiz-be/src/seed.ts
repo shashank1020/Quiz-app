@@ -44,6 +44,12 @@ const seed = async () => {
   const app = await NestFactory.createApplicationContext(AppModule);
   await UserEntity.delete({});
   await QuizEntity.delete({});
+  
+  const user = new UserEntity();
+  user.name = 'manager';
+  user.email = 'manager@email.com';
+  user.password = Bcryptjs.hashSync('Name@123', 10);
+  await user.save();
 
   for (let i = 0; i < 2; i++) {
     const user = new UserEntity();
